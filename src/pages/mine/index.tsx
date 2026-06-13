@@ -11,6 +11,8 @@ import { useStatusBar } from '../../hooks/useStatusBar'
 import './index.scss'
 
 const GROUP_URL = 'https://work.weixin.qq.com/gm/83b9eec90f067761bcf761a8e09e3dbd'
+// 关于我们 / 赞赏支持 暂时共用同一个外链
+const EXTERNAL_LINK = 'https://ifdian.net/a/erictik'
 
 export default function Mine() {
   const statusBar = useStatusBar()
@@ -29,16 +31,15 @@ export default function Mine() {
 
   const chooseTheme = () => {
     const order: ThemePref[] = ['system', 'light', 'dark']
-    overlay.actionSheet(
-      {
-        title: '夜间模式',
-        options: order.map(p => ({ name: THEME_LABEL[p], value: p }))
+    Taro.showActionSheet({
+      itemList: order.map(p => THEME_LABEL[p]),
+      success: res => {
+        const next = order[res.tapIndex]
+        setThemePref(next)
+        setPref(next)
       },
-      value => {
-        setThemePref(value as ThemePref)
-        setPref(value as ThemePref)
-      }
-    )
+      fail: () => {}
+    })
   }
 
   const goLogin = () => {
@@ -53,39 +54,24 @@ export default function Mine() {
     Taro.navigateTo({ url: '/pages/favorites/index' })
   }
 
-  const showAbout = () => {
-    overlay.alert({
-      title: '关于我们',
-      content: '古典乐汇 v1.0  汇聚每一场值得珍藏的古典音乐演出，发现、收藏、同步你的音乐日程。'
-    })
-  }
-
-  const goFeedback = () => {
-    overlay.confirm(
-      {
-        title: '意见反馈',
-        content: '感谢你的建议！可发送邮件至 feedback@cantabile.com，我们会认真阅读每一条反馈。',
-        confirmText: '复制邮箱'
-      },
-      () => Taro.setClipboardData({ data: 'feedback@cantabile.com' })
-    )
-  }
-
-  const showReward = () => {
-    const url = 'https://ifdian.net/a/erictik'
+  const openLink = (url: string, fallbackTitle: string) => {
     Taro.navigateTo({
       url: `/pages/webview/index?url=${encodeURIComponent(url)}`,
       fail: () => {
         Taro.setClipboardData({
           data: url,
           success: () => overlay.alert({
-            title: '赞赏支持',
+            title: fallbackTitle,
             content: `链接已复制，请在浏览器中打开：${url}`
           })
         })
       }
     })
   }
+
+  const showAbout = () => openLink(EXTERNAL_LINK, '关于我们')
+
+  const showReward = () => openLink(EXTERNAL_LINK, '赞赏支持')
 
   const onLogout = () => {
     overlay.confirm(
@@ -159,21 +145,24 @@ export default function Mine() {
           <Text className='mine__item-label'>关于我们</Text>
           <Icon name='chevron-right' size={32} color='#c0c0c8' />
         </View>
-        <View className='mine__item' onClick={goFeedback}>
-          <Icon name='message' size={40} color='#c9a96a' className='mine__item-icon' />
-          <Text className='mine__item-label'>意见反馈</Text>
-          <Icon name='chevron-right' size={32} color='#c0c0c8' />
-        </View>
         <View className='mine__item' onClick={showReward}>
           <Icon name='heart' size={40} color='#c9a96a' className='mine__item-icon' />
           <Text className='mine__item-label'>赞赏支持</Text>
           <Icon name='chevron-right' size={32} color='#c0c0c8' />
         </View>
-        <cell
-          url={GROUP_URL}
-          contactText='加入交流群'
-          onCompletemessage={onJoinGroupComplete}
-        />
+        <View className='mine__item mine__item--plugin'>
+          <Icon name='users' size={40} color='#c9a96a' className='mine__item-icon' />
+          <Text className='mine__item-label'>加群交流</Text>
+          <Icon name='chevron-right' size={32} color='#c0c0c8' />
+          <View className='mine__plugin-hit'>
+            <cell
+              url={GROUP_URL}
+              contactText=' '
+              paddingStyle={0}
+              onCompletemessage={onJoinGroupComplete}
+            />
+          </View>
+        </View>
       </View>
 
       {user && (

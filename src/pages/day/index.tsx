@@ -11,10 +11,12 @@ import { useStatusBar } from '../../hooks/useStatusBar'
 import './index.scss'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
-const DAY_SPAN = 15
-const DAY_LEN = DAY_SPAN * 2 + 1
 const WEEK_SPAN = 12
 const WEEK_LEN = WEEK_SPAN * 2 + 1
+// 日范围要略大于周范围（±12 周再加一周缓冲），覆盖 startOfWeek 带来的偏移，
+// 否则滑到最边缘的周时选中日期会越界、无法跟随。
+const DAY_SPAN = WEEK_SPAN * 7 + 7
+const DAY_LEN = DAY_SPAN * 2 + 1
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export default function Day() {
@@ -68,6 +70,7 @@ export default function Day() {
     if (e.detail.source === '') return
     const next = e.detail.current
     setWeekIdx(next)
+    // 切到新周后，保持原来选中的星期几，并让日视图跟随到那一天。
     const wd = activeDate.getDay()
     const ni = dayIdxOf(allWeeks[next][wd])
     if (ni >= 0 && ni < DAY_LEN) setDayIdx(ni)
@@ -76,6 +79,13 @@ export default function Day() {
   const tapWeekCell = (d: Date) => {
     const ni = dayIdxOf(d)
     if (ni >= 0 && ni < DAY_LEN) setDayIdx(ni)
+  }
+
+  const goToday = () => {
+    const di = dayIdxOf(today)
+    const wi = weekIdxOf(today)
+    if (di >= 0 && di < DAY_LEN) setDayIdx(di)
+    if (wi >= 0 && wi < WEEK_LEN) setWeekIdx(wi)
   }
 
   const goBack = () => Taro.navigateBack()
@@ -89,10 +99,7 @@ export default function Day() {
             <Icon name='chevron-left' size={40} color='#c9a96a' />
             <Text className='day__back-text'>{activeDate.getMonth() + 1}月</Text>
           </View>
-          <Text className='day__title'>
-            {activeDate.getDate()}日 周{WEEKDAYS[activeDate.getDay()]}
-          </Text>
-          <View className='day__nav-btn' onClick={() => setDayIdx(dayIdxOf(today))}>今天</View>
+          <View className='day__nav-btn' onClick={goToday}>今</View>
         </View>
         <View className='day__weekdays'>
           {WEEKDAYS.map((w, i) => (
@@ -124,6 +131,12 @@ export default function Day() {
             </SwiperItem>
           ))}
         </Swiper>
+        <View className='day__dateline'>
+          <Text className='day__dateline-main'>
+            {activeDate.getFullYear()}年{activeDate.getMonth() + 1}月{activeDate.getDate()}日
+          </Text>
+          <Text className='day__dateline-week'>星期{WEEKDAYS[activeDate.getDay()]}</Text>
+        </View>
       </View>
 
       <Swiper className='day__days' current={dayIdx} onChange={onDayChange} skipHiddenItemLayout>

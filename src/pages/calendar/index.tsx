@@ -66,7 +66,7 @@ export default function Calendar() {
       <View className='cal__header' style={{ paddingTop: `${statusBar + 12}px` }}>
         <View className='cal__title-row'>
           <Text className='cal__title'>{cursor.y}年 {MONTHS[cursor.m]}</Text>
-          <View className='cal__nav-btn' onClick={goToday}>今天</View>
+          <View className='cal__nav-btn' onClick={goToday}>今</View>
         </View>
         <View className='cal__weekdays'>
           {WEEKDAYS.map((w, i) => (
