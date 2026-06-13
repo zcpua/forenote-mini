@@ -6,7 +6,13 @@ export default defineConfig(async (merge) => {
   const baseConfig = {
     projectName: 'forenote-mini',
     date: '2026-6-14',
-    designWidth: 750,
+    designWidth(input: any) {
+      // NutUI 组件按 375 设计，其余按 750
+      if (input?.file?.replace(/\\+/g, '/').indexOf('@nutui') > -1) {
+        return 375
+      }
+      return 750
+    },
     deviceRatio: {
       640: 2.34 / 2,
       750: 1,
@@ -18,7 +24,11 @@ export default defineConfig(async (merge) => {
     plugins: [],
     defineConstants: {},
     copy: {
-      patterns: [],
+      patterns: [
+        { from: 'src/assets/tab/home_dark.png', to: 'dist/assets/tab/home_dark.png' },
+        { from: 'src/assets/tab/calendar_dark.png', to: 'dist/assets/tab/calendar_dark.png' },
+        { from: 'src/assets/tab/mine_dark.png', to: 'dist/assets/tab/mine_dark.png' }
+      ],
       options: {}
     },
     framework: 'react',

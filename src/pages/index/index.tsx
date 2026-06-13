@@ -4,12 +4,11 @@ import Taro from '@tarojs/taro'
 import { PERFORMANCES } from '../../data/performances'
 import PerformanceCard from '../../components/PerformanceCard'
 import Icon from '../../components/Icon'
-import { useTheme } from '../../hooks/useTheme'
+import ThemeView from '../../components/ThemeView'
 import { useStatusBar } from '../../hooks/useStatusBar'
 import './index.scss'
 
 export default function Index() {
-  const theme = useTheme()
   const statusBar = useStatusBar()
   const [keyword, setKeyword] = useState('')
 
@@ -30,7 +29,8 @@ export default function Index() {
   }
 
   return (
-    <ScrollView scrollY className={`home theme-${theme}`}>
+    <ThemeView className='home-page' tabBar>
+      <ScrollView scrollY className='home'>
       <View className='home__header' style={{ paddingTop: `${statusBar + 16}px` }}>
         <Text className='home__brand'>古典乐汇</Text>
         <Text className='home__slogan'>遇见每一场值得珍藏的演出</Text>
@@ -86,6 +86,7 @@ export default function Index() {
           </View>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </ThemeView>
   )
 }

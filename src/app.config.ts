@@ -1,19 +1,29 @@
 export default defineAppConfig({
+  plugins: {
+    materialPlugin: {
+      version: '1.0.13',
+      provider: 'wx4d2deeab3aed6e5a'
+    }
+  },
   pages: [
     'pages/index/index',
     'pages/calendar/index',
     'pages/mine/index',
+    'pages/day/index',
     'pages/detail/index',
     'pages/favorites/index',
     'pages/login/index',
     'pages/profile/index',
     'pages/webview/index'
   ],
+  darkmode: true,
+  themeLocation: 'theme.json',
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#1a1a2e',
+    navigationBarBackgroundColor: '@navBgColor',
     navigationBarTitleText: '古典乐汇',
-    navigationBarTextStyle: 'white'
+    navigationBarTextStyle: '@navTxtStyle',
+    backgroundColor: '@bgColor'
   },
   tabBar: {
     color: '#999999',

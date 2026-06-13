@@ -5,13 +5,16 @@ import { getUser, logout, getFavorites } from '../../store'
 import { getThemePref, setThemePref, THEME_LABEL, ThemePref } from '../../store/theme'
 import { UserInfo } from '../../types'
 import Icon from '../../components/Icon'
-import { useTheme } from '../../hooks/useTheme'
+import ThemeView from '../../components/ThemeView'
+import { useOverlay } from '../../hooks/useOverlay'
 import { useStatusBar } from '../../hooks/useStatusBar'
 import './index.scss'
 
+const GROUP_URL = 'https://work.weixin.qq.com/gm/83b9eec90f067761bcf761a8e09e3dbd'
+
 export default function Mine() {
-  const theme = useTheme()
   const statusBar = useStatusBar()
+  const overlay = useOverlay()
   const [user, setUserState] = useState<UserInfo | null>(null)
   const [favCount, setFavCount] = useState(0)
   const [pref, setPref] = useState<ThemePref>(getThemePref())
@@ -26,14 +29,16 @@ export default function Mine() {
 
   const chooseTheme = () => {
     const order: ThemePref[] = ['system', 'light', 'dark']
-    Taro.showActionSheet({
-      itemList: order.map(p => THEME_LABEL[p]),
-      success: res => {
-        const next = order[res.tapIndex]
-        setThemePref(next)
-        setPref(next)
+    overlay.actionSheet(
+      {
+        title: '夜间模式',
+        options: order.map(p => ({ name: THEME_LABEL[p], value: p }))
+      },
+      value => {
+        setThemePref(value as ThemePref)
+        setPref(value as ThemePref)
       }
-    })
+    )
   }
 
   const goLogin = () => {
@@ -49,26 +54,21 @@ export default function Mine() {
   }
 
   const showAbout = () => {
-    Taro.showModal({
+    overlay.alert({
       title: '关于我们',
-      content: '古典乐汇 v1.0\n汇聚每一场值得珍藏的古典音乐演出，发现、收藏、同步你的音乐日程。',
-      showCancel: false,
-      confirmText: '知道了'
+      content: '古典乐汇 v1.0  汇聚每一场值得珍藏的古典音乐演出，发现、收藏、同步你的音乐日程。'
     })
   }
 
   const goFeedback = () => {
-    Taro.showModal({
-      title: '意见反馈',
-      content: '感谢你的建议！可发送邮件至 feedback@cantabile.com，我们会认真阅读每一条反馈。',
-      confirmText: '复制邮箱',
-      cancelText: '关闭',
-      success: res => {
-        if (res.confirm) {
-          Taro.setClipboardData({ data: 'feedback@cantabile.com' })
-        }
-      }
-    })
+    overlay.confirm(
+      {
+        title: '意见反馈',
+        content: '感谢你的建议！可发送邮件至 feedback@cantabile.com，我们会认真阅读每一条反馈。',
+        confirmText: '复制邮箱'
+      },
+      () => Taro.setClipboardData({ data: 'feedback@cantabile.com' })
+    )
   }
 
   const showReward = () => {
@@ -78,10 +78,9 @@ export default function Mine() {
       fail: () => {
         Taro.setClipboardData({
           data: url,
-          success: () => Taro.showModal({
+          success: () => overlay.alert({
             title: '赞赏支持',
-            content: `链接已复制，请在浏览器中打开：\n${url}`,
-            showCancel: false
+            content: `链接已复制，请在浏览器中打开：${url}`
           })
         })
       }
@@ -89,21 +88,32 @@ export default function Mine() {
   }
 
   const onLogout = () => {
-    Taro.showModal({
-      title: '退出登录',
-      content: '确定要退出当前账号吗？',
-      success: res => {
-        if (res.confirm) {
-          logout()
-          refresh()
-          Taro.showToast({ title: '已退出', icon: 'none' })
-        }
+    overlay.confirm(
+      { title: '退出登录', content: '确定要退出当前账号吗？' },
+      () => {
+        logout()
+        refresh()
+        Taro.showToast({ title: '已退出', icon: 'none' })
       }
-    })
+    )
+  }
+
+  const onJoinGroupComplete = (e: { detail: { errcode: number; notifytype: number } }) => {
+    const { errcode } = e.detail
+    if (errcode === 0) return
+    const msg: Record<number, string> = {
+      [-3009]: '群聊已满员',
+      [-3010]: '群聊已解散',
+      [-3011]: '你已被该群拉黑',
+      [-3012]: '群聊已满员'
+    }
+    if (msg[errcode]) {
+      Taro.showToast({ title: msg[errcode], icon: 'none' })
+    }
   }
 
   return (
-    <View className={`mine theme-${theme}`}>
+    <ThemeView className='mine' tabBar>
       <View className='mine__header' style={{ paddingTop: `${statusBar + 40}px` }}>
         <View className='mine__profile' onClick={goLogin}>
           <Image
@@ -159,6 +169,11 @@ export default function Mine() {
           <Text className='mine__item-label'>赞赏支持</Text>
           <Icon name='chevron-right' size={32} color='#c0c0c8' />
         </View>
+        <cell
+          url={GROUP_URL}
+          contactText='加入交流群'
+          onCompletemessage={onJoinGroupComplete}
+        />
       </View>
 
       {user && (
@@ -167,6 +182,8 @@ export default function Mine() {
           <Text className='mine__logout-text'>退出登录</Text>
         </View>
       )}
-    </View>
+
+      {overlay.node}
+    </ThemeView>
   )
 }

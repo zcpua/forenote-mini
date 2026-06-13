@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 import { View, Input, Text, Image, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { getUser, setUser } from '../../store'
-import { useTheme } from '../../hooks/useTheme'
+import ThemeView from '../../components/ThemeView'
 import './index.scss'
 
 export default function Profile() {
-  const theme = useTheme()
   const [nick, setNick] = useState('')
   const [sign, setSign] = useState('')
   const [avatar, setAvatar] = useState('')
@@ -43,7 +42,7 @@ export default function Profile() {
   }
 
   return (
-    <View className={`profile theme-${theme}`}>
+    <ThemeView className='profile'>
       <View className='profile__avatar-row' onClick={chooseAvatar}>
         <Image
           className='profile__avatar'
@@ -77,6 +76,6 @@ export default function Profile() {
       <View className='profile__btn' onClick={save}>
         <Text>保 存</Text>
       </View>
-    </View>
+    </ThemeView>
   )
 }

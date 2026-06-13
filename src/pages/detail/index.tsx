@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
-import { View, Image, Text, ScrollView, Button } from '@tarojs/components'
+import { View, Image, Text, ScrollView } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { getPerformanceById } from '../../data/performances'
 import { Performance } from '../../types'
 import { isFavorite, toggleFavorite } from '../../store'
 import Icon from '../../components/Icon'
-import { useTheme } from '../../hooks/useTheme'
+import ThemeView from '../../components/ThemeView'
+import { useOverlay } from '../../hooks/useOverlay'
 import './index.scss'
 
 export default function Detail() {
-  const theme = useTheme()
   const router = useRouter()
+  const overlay = useOverlay()
   const id = router.params.id || ''
   const [perf, setPerf] = useState<Performance | undefined>(undefined)
   const [fav, setFav] = useState(false)
@@ -34,7 +35,11 @@ export default function Detail() {
   }, [])
 
   if (!perf) {
-    return <View className={`detail theme-${theme}`}><View className='detail__loading'><Text>加载中…</Text></View></View>
+    return (
+      <ThemeView className='detail'>
+        <View className='detail__loading'><Text>加载中…</Text></View>
+      </ThemeView>
+    )
   }
 
   const onFav = () => {
@@ -86,17 +91,16 @@ export default function Detail() {
     Taro.setClipboardData({
       data: perf.ticketUrl,
       success: () => {
-        Taro.showModal({
+        overlay.alert({
           title: '前往购票',
-          content: `购票链接已复制：\n${perf.ticketUrl}\n请在浏览器中打开`,
-          showCancel: false
+          content: `购票链接已复制：${perf.ticketUrl}  请在浏览器中打开`
         })
       }
     })
   }
 
   return (
-    <View className={`detail theme-${theme}`}>
+    <ThemeView className='detail'>
       <ScrollView scrollY className='detail__scroll'>
         <Image className='detail__cover' src={perf.cover} mode='aspectFill' />
 
@@ -154,13 +158,15 @@ export default function Detail() {
           <Icon name={fav ? 'star-fill' : 'star'} size={48} color='#c9a96a' />
         </View>
         <View className='detail__bar-cal' onClick={addToCalendar}>
-          <Icon name='calendar-add' size={44} color='#fff' />
+          <Icon name='calendar-add' size={44} color='#ffffff' />
         </View>
         <View className='detail__bar-buy' onClick={buyTicket}>
-          <Icon name='ticket' size={40} color='#fff' />
+          <Icon name='ticket' size={40} color='#ffffff' />
           <Text className='detail__bar-buytext'>¥{perf.priceFrom} 起</Text>
         </View>
       </View>
-    </View>
+
+      {overlay.node}
+    </ThemeView>
   )
 }

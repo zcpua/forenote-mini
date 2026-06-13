@@ -1,5 +1,9 @@
+.fav-page {
+  height: 100vh;
+}
+
 .fav {
-  min-height: 100vh;
+  height: 100vh;
   background: var(--bg);
 
   &__list {

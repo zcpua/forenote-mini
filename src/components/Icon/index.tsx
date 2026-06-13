@@ -27,7 +27,6 @@ interface Props {
 }
 
 function svg(name: IconName, color: string): string {
-  const c = encodeURIComponent(color)
   const paths: Record<IconName, string> = {
     search: `<circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="${color}" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="${color}" stroke-width="2" stroke-linecap="round"/>`,
     star: `<path d="M12 3l2.7 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17.8 6.5 20.2l1.1-6.2L3 9.6l6.3-.9z" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round"/>`,

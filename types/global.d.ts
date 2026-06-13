@@ -16,3 +16,18 @@ declare namespace NodeJS {
     TARO_ENV: 'weapp' | 'swan' | 'alipay' | 'h5' | 'rn' | 'tt' | 'quickapp' | 'qq' | 'jd'
   }
 }
+
+declare namespace JSX {
+  interface IntrinsicElements {
+    cell: {
+      url: string
+      contactText?: string
+      contactTextBlod?: boolean
+      iconUrl?: string
+      iconBorderRadius?: number
+      paddingStyle?: number
+      onStartmessage?: () => void
+      onCompletemessage?: (e: { detail: { errcode: number; notifytype: number } }) => void
+    }
+  }
+}
