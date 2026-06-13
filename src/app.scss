@@ -1,0 +1,66 @@
+/* Light values as defaults on page so var() always resolves */
+page {
+  --primary: #1a1a2e;
+  --accent: #c9a96a;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --text: #2c2c34;
+  --text-muted: #6a6a76;
+  --text-light: #8a8a96;
+  --text-faint: #b0b0b8;
+  --divider: #f0f0f2;
+  --header-grad-a: #1a1a2e;
+  --header-grad-b: #2d2d52;
+  --on-header: #ffffff;
+  --mask: rgba(0, 0, 0, 0.55);
+
+  background-color: var(--bg);
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+}
+
+/* Theme class lives on each page's root <View>; vars cascade to children */
+.theme-light {
+  --primary: #1a1a2e;
+  --accent: #c9a96a;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --text: #2c2c34;
+  --text-muted: #6a6a76;
+  --text-light: #8a8a96;
+  --text-faint: #b0b0b8;
+  --divider: #f0f0f2;
+  --header-grad-a: #1a1a2e;
+  --header-grad-b: #2d2d52;
+  --on-header: #ffffff;
+  --mask: rgba(0, 0, 0, 0.55);
+}
+
+.theme-dark {
+  --primary: #c9a96a;
+  --accent: #c9a96a;
+  --bg: #0f0f17;
+  --surface: #1c1c26;
+  --surface-2: #2a2a36;
+  --text: #ececf0;
+  --text-muted: #b8b8c2;
+  --text-light: #8a8a96;
+  --text-faint: #6a6a76;
+  --divider: #2a2a36;
+  --header-grad-a: #14141f;
+  --header-grad-b: #25253f;
+  --on-header: #ececf0;
+  --mask: rgba(0, 0, 0, 0.7);
+}
+
+view, text, image {
+  box-sizing: border-box;
+}
+
+.app-page {
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+}

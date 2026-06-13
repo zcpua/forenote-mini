@@ -1,0 +1,222 @@
+.detail {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+
+  &__loading {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 28px;
+  }
+
+  &__scroll {
+    flex: 1;
+    height: 0;
+  }
+
+  &__cover {
+    width: 100%;
+    height: 460px;
+  }
+
+  &__head {
+    padding: 32px;
+  }
+
+  &__title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  &__tag {
+    font-size: 24px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border-radius: 20px;
+    padding: 8px 20px;
+    margin: 0 16px 12px 0;
+  }
+
+  &__section {
+    padding: 16px 32px 24px;
+    border-top: 16px solid var(--bg);
+  }
+
+  &__section-title {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 16px 0 24px;
+    padding-left: 20px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 8px;
+      border-radius: 4px;
+      background: var(--accent);
+    }
+  }
+
+  &__intro {
+    font-size: 28px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  &__performers {
+    white-space: nowrap;
+  }
+
+  &__performer {
+    display: inline-flex;
+    flex-direction: column;
+    width: 320px;
+    background: var(--surface-2);
+    border-radius: 18px;
+    padding: 28px;
+    margin-right: 20px;
+    white-space: normal;
+    vertical-align: top;
+  }
+
+  &__performer-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+  }
+
+  &__performer-name {
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 20px;
+  }
+
+  &__performer-role {
+    font-size: 24px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  &__performer-bio {
+    font-size: 24px;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-top: 16px;
+  }
+
+  &__track {
+    display: flex;
+    align-items: center;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  &__play {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--primary);
+
+    &--on {
+      background: var(--accent);
+      color: #fff;
+    }
+  }
+
+  &__track-info {
+    flex: 1;
+    margin-left: 28px;
+  }
+
+  &__track-title {
+    display: block;
+    font-size: 30px;
+    color: var(--text);
+  }
+
+  &__track-composer {
+    display: block;
+    font-size: 24px;
+    color: var(--text-light);
+    margin-top: 8px;
+  }
+
+  &__track-dur {
+    font-size: 24px;
+    color: var(--text-faint);
+  }
+
+  &__spacer {
+    height: 40px;
+  }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    padding: 16px 28px calc(16px + constant(safe-area-inset-bottom)) 28px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--divider);
+    background: var(--surface);
+  }
+
+  &__bar-fav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+  }
+
+  &__bar-cal {
+    width: 110px;
+    height: 88px;
+    margin: 0 16px;
+    border-radius: 44px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__bar-buy {
+    flex: 1;
+    height: 88px;
+    border-radius: 44px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__bar-buytext {
+    margin-left: 12px;
+  }
+}

@@ -1,0 +1,346 @@
+.cal {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+
+  &__header {
+    background: var(--surface);
+    padding: 24px 28px 12px;
+    border-bottom: 1px solid var(--divider);
+    flex-shrink: 0;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-right: 180px;
+  }
+
+  &__title {
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--text);
+
+    &--sm {
+      font-size: 36px;
+      margin-left: 4px;
+    }
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+  }
+
+  &__day-titlebar {
+    display: flex;
+    align-items: center;
+  }
+
+  &__back-month {
+    font-size: 36px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  &__nav-btn {
+    min-width: 96px;
+    height: 56px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  &__weekdays {
+    display: flex;
+    padding: 8px 0;
+  }
+
+  &__weekday {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    color: var(--text-light);
+    font-weight: 600;
+    letter-spacing: 1px;
+
+    &--weekend { color: var(--accent); }
+  }
+
+  &__body {
+    flex: 1;
+    position: relative;
+    height: 0;
+  }
+
+  &__layer {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.24s ease;
+    will-change: transform, opacity;
+
+    &--month.cal__layer--hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &--day {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(0);
+      z-index: 2;
+    }
+
+    &--day.cal__layer--down {
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* ---------- month ---------- */
+  &__pages {
+    height: 100%;
+  }
+
+  &__page {
+    background: var(--surface);
+  }
+
+  &__grid {
+    height: 100%;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.24s ease;
+    will-change: transform, opacity;
+
+    &--zooming {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+
+  &__row {
+    flex: 1;
+    display: flex;
+    border-bottom: 1px solid var(--divider);
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__cell {
+    flex: 1;
+    width: 0;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--divider);
+    position: relative;
+    overflow: hidden;
+
+    &:last-child { border-right: none; }
+
+    &--out .cal__cell-num { color: var(--text-faint); opacity: 0.5; }
+
+    &--today .cal__cell-num {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+  }
+
+  &__cell-head {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+
+  &__cell-num {
+    font-size: 26px;
+    color: var(--text);
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    border-radius: 50%;
+  }
+
+  &__bars {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__bar {
+    height: 26px;
+    line-height: 26px;
+    border-radius: 4px;
+    border-left: 4px solid transparent;
+    padding: 0 6px;
+    margin-bottom: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  &__bar-text {
+    font-size: 18px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block;
+  }
+
+  &__more {
+    font-size: 18px;
+    color: var(--text-light);
+    padding-left: 6px;
+  }
+
+  /* ---------- day ---------- */
+  &__weekstrip {
+    height: 120px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--divider);
+    background: var(--surface);
+  }
+
+  &__weekitem { height: 100%; }
+
+  &__weekrow {
+    display: flex;
+    height: 100%;
+    align-items: center;
+  }
+
+  &__wcell {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  &__wcell-num {
+    font-size: 30px;
+    color: var(--text);
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+    border-radius: 50%;
+  }
+
+  &__wcell--today .cal__wcell-num { color: var(--accent); font-weight: 700; }
+
+  &__wcell--active .cal__wcell-num {
+    background: var(--primary);
+    color: var(--surface);
+    font-weight: 700;
+  }
+
+  &__wcell-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 6px;
+  }
+
+  &__wcell--active .cal__wcell-dot { background: var(--primary); }
+
+  &__days {
+    flex: 1;
+    height: 0;
+  }
+
+  &__dayitem { height: 100%; }
+
+  &__dayscroll {
+    height: 100%;
+    background: var(--bg);
+  }
+
+  &__list { padding: 28px 32px 60px; }
+
+  &__event {
+    display: flex;
+    margin-bottom: 24px;
+  }
+
+  &__time {
+    width: 100px;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+
+  &__time-start {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  &__card {
+    flex: 1;
+    display: flex;
+    border-radius: 18px;
+    border-left: 8px solid transparent;
+    overflow: hidden;
+  }
+
+  &__card-cover {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+  }
+
+  &__card-body {
+    flex: 1;
+    padding: 20px 24px;
+    overflow: hidden;
+  }
+
+  &__card-title {
+    display: block;
+    font-size: 30px;
+    font-weight: 600;
+  }
+
+  &__card-meta {
+    display: block;
+    font-size: 22px;
+    color: #6a6a76;
+    margin-top: 10px;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 180px 0;
+  }
+
+  &__empty-text {
+    font-size: 30px;
+    color: var(--text-muted);
+    margin-top: 28px;
+  }
+
+  &__empty-hint {
+    font-size: 24px;
+    color: var(--text-faint);
+    margin-top: 14px;
+  }
+}
