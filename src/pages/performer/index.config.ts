@@ -1,6 +1,5 @@
 export default definePageConfig({
-  navigationStyle: 'custom',
-  enablePullDownRefresh: false,
+  navigationBarTitleText: '演奏家',
   enableShareAppMessage: true,
   enableShareTimeline: true
 })

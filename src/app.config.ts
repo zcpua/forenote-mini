@@ -11,17 +11,24 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/day/index',
     'pages/detail/index',
+    'pages/performer/index',
     'pages/favorites/index',
+    'pages/follows/index',
     'pages/login/index',
     'pages/profile/index',
     'pages/webview/index'
   ],
   darkmode: true,
   themeLocation: 'theme.json',
+  permission: {
+    'scope.addPhoneCalendar': {
+      desc: '用于将演出提醒添加到系统日历'
+    }
+  },
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '@navBgColor',
-    navigationBarTitleText: '古典乐汇',
+    navigationBarTitleText: 'FORENOTE有谱',
     navigationBarTextStyle: '@navTxtStyle',
     backgroundColor: '@bgColor'
   },

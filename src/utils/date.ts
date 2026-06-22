@@ -23,3 +23,12 @@ export const parseDateKey = (s?: string): Date => {
   if (!y || !m || !d) return new Date()
   return new Date(y, m - 1, d)
 }
+
+export const parseDateTime = (date: string, time?: string): Date => {
+  const [y, m, d] = date.split('-').map(Number)
+  const [hh = 0, mm = 0] = (time || '00:00').split(':').map(Number)
+  return new Date(y, m - 1, d, hh, mm)
+}
+
+export const isPastDateTime = (date: string, time?: string, now = new Date()) =>
+  parseDateTime(date, time).getTime() < now.getTime()

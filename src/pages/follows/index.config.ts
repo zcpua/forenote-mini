@@ -1,6 +1,5 @@
 export default definePageConfig({
-  navigationStyle: 'custom',
-  enablePullDownRefresh: false,
+  navigationBarTitleText: '我的关注',
   enableShareAppMessage: true,
   enableShareTimeline: true
 })

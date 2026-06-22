@@ -1,33 +1,38 @@
 import { useState } from 'react'
 import { View, Image, Text } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { getUser, logout, getFavorites } from '../../store'
+import { getUser, getFavorites, getFollows, hydrateFavorites } from '../../store'
+import { refreshProfile, logout } from '../../services/auth'
 import { getThemePref, setThemePref, THEME_LABEL, ThemePref } from '../../store/theme'
 import { UserInfo } from '../../types'
 import Icon from '../../components/Icon'
 import ThemeView from '../../components/ThemeView'
-import { useOverlay } from '../../hooks/useOverlay'
 import { useStatusBar } from '../../hooks/useStatusBar'
+import { usePageShare } from '../../hooks/usePageShare'
 import './index.scss'
 
 const GROUP_URL = 'https://work.weixin.qq.com/gm/83b9eec90f067761bcf761a8e09e3dbd'
-// 关于我们 / 赞赏支持 暂时共用同一个外链
-const EXTERNAL_LINK = 'https://ifdian.net/a/erictik'
 
 export default function Mine() {
+  usePageShare({ title: 'FORENOTE有谱 | 我的' })
   const statusBar = useStatusBar()
-  const overlay = useOverlay()
   const [user, setUserState] = useState<UserInfo | null>(null)
   const [favCount, setFavCount] = useState(0)
+  const [followCount, setFollowCount] = useState(0)
   const [pref, setPref] = useState<ThemePref>(getThemePref())
 
   const refresh = () => {
     setUserState(getUser())
     setFavCount(getFavorites().length)
+    setFollowCount(getFollows().length)
     setPref(getThemePref())
   }
 
-  useDidShow(refresh)
+  useDidShow(() => {
+    refresh()
+    // 从后端同步用户态与收藏，完成后再刷一次。
+    Promise.all([refreshProfile(), hydrateFavorites()]).then(refresh)
+  })
 
   const chooseTheme = () => {
     const order: ThemePref[] = ['system', 'light', 'dark']
@@ -54,34 +59,21 @@ export default function Mine() {
     Taro.navigateTo({ url: '/pages/favorites/index' })
   }
 
-  const openLink = (url: string, fallbackTitle: string) => {
-    Taro.navigateTo({
-      url: `/pages/webview/index?url=${encodeURIComponent(url)}`,
-      fail: () => {
-        Taro.setClipboardData({
-          data: url,
-          success: () => overlay.alert({
-            title: fallbackTitle,
-            content: `链接已复制，请在浏览器中打开：${url}`
-          })
-        })
-      }
-    })
+  const goFollows = () => {
+    Taro.navigateTo({ url: '/pages/follows/index' })
   }
 
-  const showAbout = () => openLink(EXTERNAL_LINK, '关于我们')
-
-  const showReward = () => openLink(EXTERNAL_LINK, '赞赏支持')
-
   const onLogout = () => {
-    overlay.confirm(
-      { title: '退出登录', content: '确定要退出当前账号吗？' },
-      () => {
+    Taro.showModal({
+      title: '退出登录',
+      content: '确定要退出当前账号吗？',
+      success: res => {
+        if (!res.confirm) return
         logout()
         refresh()
         Taro.showToast({ title: '已退出', icon: 'none' })
       }
-    )
+    })
   }
 
   const onJoinGroupComplete = (e: { detail: { errcode: number; notifytype: number } }) => {
@@ -113,41 +105,25 @@ export default function Mine() {
               {user ? (user.signature || '编辑个人资料 ›') : '登录后收藏与同步演出日程'}
             </Text>
           </View>
-          <Text className='mine__arrow'>›</Text>
         </View>
       </View>
 
-      <View className='mine__menu'>
-        <View className='mine__item' onClick={goFavorites}>
-          <Icon name='star' size={40} color='#c9a96a' className='mine__item-icon' />
-          <Text className='mine__item-label'>我的收藏</Text>
-          <Text className='mine__item-extra'>{favCount}</Text>
-          <Icon name='chevron-right' size={32} color='#c0c0c8' />
+      <View className='mine__stats'>
+        <View className='mine__stat' onClick={goFavorites}>
+          <Text className='mine__stat-num'>{favCount}</Text>
+          <Text className='mine__stat-label'>我的收藏</Text>
         </View>
-        {user && (
-          <View className='mine__item' onClick={() => Taro.navigateTo({ url: '/pages/profile/index' })}>
-            <Icon name='edit' size={40} color='#c9a96a' className='mine__item-icon' />
-            <Text className='mine__item-label'>修改资料</Text>
-            <Icon name='chevron-right' size={32} color='#c0c0c8' />
-          </View>
-        )}
+        <View className='mine__stat' onClick={goFollows}>
+          <Text className='mine__stat-num'>{followCount}</Text>
+          <Text className='mine__stat-label'>我的关注</Text>
+        </View>
       </View>
 
       <View className='mine__menu'>
         <View className='mine__item' onClick={chooseTheme}>
           <Icon name='moon' size={40} color='#c9a96a' className='mine__item-icon' />
-          <Text className='mine__item-label'>夜间模式</Text>
+          <Text className='mine__item-label'>系统主题</Text>
           <Text className='mine__item-extra'>{THEME_LABEL[pref]}</Text>
-          <Icon name='chevron-right' size={32} color='#c0c0c8' />
-        </View>
-        <View className='mine__item' onClick={showAbout}>
-          <Icon name='info' size={40} color='#c9a96a' className='mine__item-icon' />
-          <Text className='mine__item-label'>关于我们</Text>
-          <Icon name='chevron-right' size={32} color='#c0c0c8' />
-        </View>
-        <View className='mine__item' onClick={showReward}>
-          <Icon name='heart' size={40} color='#c9a96a' className='mine__item-icon' />
-          <Text className='mine__item-label'>赞赏支持</Text>
           <Icon name='chevron-right' size={32} color='#c0c0c8' />
         </View>
         <View className='mine__item mine__item--plugin'>
@@ -171,8 +147,6 @@ export default function Mine() {
           <Text className='mine__logout-text'>退出登录</Text>
         </View>
       )}
-
-      {overlay.node}
     </ThemeView>
   )
 }

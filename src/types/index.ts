@@ -4,6 +4,9 @@ export interface Performer {
   role: string
   avatar: string
   bio: string
+  works?: string[]
+  relatedIds?: string[]
+  recommended?: boolean
 }
 
 export interface Track {

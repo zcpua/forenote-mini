@@ -25,23 +25,6 @@
     margin-top: 16px;
   }
 
-  &__field {
-    width: 100%;
-    margin-top: 72px;
-    background: var(--surface-2);
-    border-radius: 20px;
-    padding: 0 32px;
-    height: 96px;
-    display: flex;
-    align-items: center;
-  }
-
-  &__input {
-    width: 100%;
-    font-size: 30px;
-    color: var(--text);
-  }
-
   &__btn {
     width: 100%;
     height: 96px;

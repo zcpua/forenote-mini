@@ -137,6 +137,15 @@
     margin-bottom: 4px;
     overflow: hidden;
     white-space: nowrap;
+
+    &--past {
+      background: var(--surface-2);
+      border-left-color: var(--text-faint);
+
+      .cal__bar-text {
+        color: var(--text-muted);
+      }
+    }
   }
 
   &__bar-text {

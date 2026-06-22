@@ -1,4 +1,4 @@
-# 古典乐汇 (forenote-mini)
+# FORENOTE有谱 (forenote-mini)
 
 一款面向古典音乐爱好者的微信小程序：发现演出、收藏关注、把音乐会加入系统日历。基于 Taro 4 + React 18 + TypeScript 构建。
 

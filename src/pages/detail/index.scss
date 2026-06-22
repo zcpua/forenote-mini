@@ -13,18 +13,16 @@
     font-size: 28px;
   }
 
-  &__scroll {
-    flex: 1;
-    height: 0;
-  }
-
   &__cover {
     width: 100%;
     height: 460px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 28px;
   }
 
   &__head {
-    padding: 32px;
+    padding: 32px 32px 20px;
   }
 
   &__title {
@@ -49,33 +47,70 @@
     margin: 0 16px 12px 0;
   }
 
-  &__section {
-    padding: 16px 32px 24px;
-    border-top: 16px solid var(--bg);
+  &__tabs {
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--surface);
   }
 
-  &__section-title {
-    display: block;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 16px 0 24px;
-    padding-left: 20px;
+  &__tab {
+    flex: 1;
+    height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
+    color: var(--text-muted);
 
-    &::before {
+    &::after {
       content: '';
       position: absolute;
-      left: 0;
-      top: 6px;
-      bottom: 6px;
-      width: 8px;
-      border-radius: 4px;
-      background: var(--accent);
+      left: 50%;
+      bottom: 0;
+      width: 48px;
+      height: 6px;
+      border-radius: 3px;
+      background: transparent;
+      transform: translateX(-50%);
+    }
+
+    &--active {
+      color: var(--text);
+
+      &::after {
+        background: var(--accent);
+      }
     }
   }
 
+  &__tab-text {
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  &__swiper {
+    flex: 1;
+    height: 0;
+    background: var(--bg);
+  }
+
+  &__pane {
+    height: 100%;
+  }
+
+  &__pane-scroll {
+    height: 100%;
+  }
+
+  &__section {
+    padding: 32px;
+    background: var(--surface);
+  }
+
   &__intro {
+    display: block;
     font-size: 28px;
     color: var(--text-muted);
     line-height: 1.8;
@@ -172,6 +207,7 @@
 
   &__spacer {
     height: 40px;
+    background: var(--bg);
   }
 
   &__bar {
@@ -190,33 +226,28 @@
     width: 110px;
   }
 
-  &__bar-cal {
-    width: 110px;
+  &__bar-btn {
+    flex: 1;
     height: 88px;
-    margin: 0 16px;
+    margin-left: 16px;
+    padding: 0;
     border-radius: 44px;
+    border: 0;
     background: var(--btn-secondary-bg);
     color: var(--btn-secondary-fg);
     font-size: 28px;
+    font-weight: 500;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    &::after {
+      border: 0;
+    }
   }
 
-  &__bar-buy {
-    flex: 1;
-    height: 88px;
-    border-radius: 44px;
-    background: var(--accent);
-    color: var(--btn-accent-fg);
-    font-size: 28px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__bar-buytext {
-    margin-left: 12px;
+  &__bar-btntext {
+    margin-left: 10px;
   }
 }

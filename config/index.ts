@@ -22,7 +22,10 @@ export default defineConfig(async (merge) => {
     sourceRoot: 'src',
     outputRoot: 'dist',
     plugins: [],
-    defineConstants: {},
+    defineConstants: {
+      __APP_WX_CLOUD_ENV__: JSON.stringify(process.env.TARO_APP_WX_CLOUD_ENV || ''),
+      __APP_WX_CLOUD_SERVICE__: JSON.stringify(process.env.TARO_APP_WX_CLOUD_SERVICE || 'forenote')
+    },
     copy: {
       patterns: [
         { from: 'src/assets/tab/home_dark.png', to: 'dist/assets/tab/home_dark.png' },

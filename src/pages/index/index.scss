@@ -27,26 +27,6 @@
     margin-top: 8px;
   }
 
-  &__search {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 40px;
-    padding: 0 28px;
-    height: 80px;
-    margin-top: 32px;
-  }
-
-  &__search-icon {
-    font-size: 30px;
-    margin-right: 16px;
-  }
-
-  &__search-input {
-    flex: 1;
-    font-size: 28px;
-    color: #2c2c34;
-  }
   &__banner {
     height: 360px;
     margin: 32px;

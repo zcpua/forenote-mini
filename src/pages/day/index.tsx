@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Swiper, SwiperItem, ScrollView, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
-import { PERFORMANCES } from '../../data/performances'
+import { usePerformances } from '../../store/performances'
 import { addDays, dateKey, parseDateKey, sameDay, startOfWeek } from '../../utils/date'
 import { colorOf } from '../../utils/color'
 import { Performance } from '../../types'
 import Icon from '../../components/Icon'
 import ThemeView from '../../components/ThemeView'
 import { useStatusBar } from '../../hooks/useStatusBar'
+import { usePageShare } from '../../hooks/usePageShare'
 import './index.scss'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
@@ -20,20 +21,23 @@ const DAY_LEN = DAY_SPAN * 2 + 1
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export default function Day() {
+  usePageShare({ title: 'FORENOTE有谱 | 每日演出' })
   const statusBar = useStatusBar()
   const router = useRouter()
   const today = useMemo(() => new Date(), [])
   const anchor = useMemo(() => parseDateKey(router.params.date), [router.params.date])
 
+  const { list } = usePerformances()
+
   const eventsByDay = useMemo(() => {
     const map: Record<string, Performance[]> = {}
-    PERFORMANCES.forEach(p => {
+    list.forEach(p => {
       if (!map[p.date]) map[p.date] = []
       map[p.date].push(p)
     })
     Object.values(map).forEach(l => l.sort((a, b) => a.time.localeCompare(b.time)))
     return map
-  }, [])
+  }, [list])
 
   const allDays = useMemo(
     () => Array.from({ length: DAY_LEN }, (_, i) => addDays(anchor, i - DAY_SPAN)),

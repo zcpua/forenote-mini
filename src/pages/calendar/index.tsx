@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Swiper, SwiperItem } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { PERFORMANCES } from '../../data/performances'
-import { dateKey, sameDay } from '../../utils/date'
+import { usePerformances } from '../../store/performances'
+import { dateKey, isPastDateTime, sameDay } from '../../utils/date'
 import { colorOf } from '../../utils/color'
 import { Performance } from '../../types'
 import ThemeView from '../../components/ThemeView'
 import { useStatusBar } from '../../hooks/useStatusBar'
+import { usePageShare } from '../../hooks/usePageShare'
 import './index.scss'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
@@ -38,21 +39,24 @@ const buildMonths = (anchor: Date): MonthData[] => {
 }
 
 export default function Calendar() {
+  usePageShare({ title: 'FORENOTE有谱 | 演出日历' })
   const statusBar = useStatusBar()
   const today = useMemo(() => new Date(), [])
   const months = useMemo(() => buildMonths(today), [today])
 
   const [monthIdx, setMonthIdx] = useState(SPAN_MONTHS)
 
+  const { list } = usePerformances()
+
   const eventsByDay = useMemo(() => {
     const map: Record<string, Performance[]> = {}
-    PERFORMANCES.forEach(p => {
+    list.forEach(p => {
       if (!map[p.date]) map[p.date] = []
       map[p.date].push(p)
     })
     Object.values(map).forEach(l => l.sort((a, b) => a.time.localeCompare(b.time)))
     return map
-  }, [])
+  }, [list])
 
   const cursor = months[monthIdx]
 
@@ -109,9 +113,14 @@ export default function Calendar() {
                               <View className='cal__bars'>
                                 {visible.map(ev => {
                                   const c = colorOf(ev.id)
+                                  const isPast = isPastDateTime(ev.date, ev.time, today)
                                   return (
-                                    <View key={ev.id} className='cal__bar' style={{ background: c.bg, borderLeftColor: c.bar }}>
-                                      <Text className='cal__bar-text' style={{ color: c.fg }}>{ev.title}</Text>
+                                    <View
+                                      key={ev.id}
+                                      className={`cal__bar ${isPast ? 'cal__bar--past' : ''}`}
+                                      style={isPast ? undefined : { background: c.bg, borderLeftColor: c.bar }}
+                                    >
+                                      <Text className='cal__bar-text' style={isPast ? undefined : { color: c.fg }}>{ev.title}</Text>
                                     </View>
                                   )
                                 })}

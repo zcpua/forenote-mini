@@ -3,11 +3,18 @@
   background: var(--bg);
   padding: 32px;
 
-  &__avatar-row {
+  &__avatar-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 40px 0;
+    background: transparent;
+    border: none;
+    line-height: normal;
+
+    &::after {
+      border: none;
+    }
   }
 
   &__avatar {

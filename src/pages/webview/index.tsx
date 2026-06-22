@@ -1,5 +1,6 @@
 import { WebView } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
+import { usePageShare } from '../../hooks/usePageShare'
 
 // web-view 可加载的外链白名单（按域名前缀匹配）。
 // 新增外链入口时，必须把对应域名加到这里，否则会被拦截。
@@ -16,6 +17,7 @@ function isAllowed(url: string): boolean {
 export default function Webview() {
   const router = useRouter()
   const url = decodeURIComponent(router.params.url || '')
+  usePageShare({ title: 'FORENOTE有谱' })
 
   if (!url || !isAllowed(url)) {
     Taro.showToast({ title: '不支持的链接', icon: 'none' })
