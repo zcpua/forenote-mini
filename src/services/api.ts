@@ -89,6 +89,7 @@ export type ApiPerformance = {
 }
 
 export const fetchPerformances = () => api.get<ApiPerformance[]>(`${BASE}/performances`)
+export const fetchBannerPerformances = () => api.get<ApiPerformance[]>(`${BASE}/banners`)
 export const fetchPerformance = (id: string) =>
   api.get<ApiPerformance>(`${BASE}/performances/${encodeURIComponent(id)}`)
 

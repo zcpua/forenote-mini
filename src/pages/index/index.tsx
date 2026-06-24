@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { View, Image, Text, Swiper, SwiperItem, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { usePerformances } from '../../store/performances'
+import { useBannerPerformances, usePerformances } from '../../store/performances'
 import PerformanceCard from '../../components/PerformanceCard'
 import ThemeView from '../../components/ThemeView'
 import { useStatusBar } from '../../hooks/useStatusBar'
@@ -12,8 +12,8 @@ export default function Index() {
   usePageShare({ title: 'FORENOTE有谱 | 发现值得珍藏的演出' })
   const statusBar = useStatusBar()
   const { list, loading } = usePerformances()
+  const { list: banners } = useBannerPerformances()
 
-  const banners = useMemo(() => list.filter(p => p.banner), [list])
   const recommended = useMemo(() => list.filter(p => p.recommended), [list])
 
   const goDetail = (id: string) => {
