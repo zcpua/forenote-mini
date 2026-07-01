@@ -250,4 +250,13 @@
   &__bar-btntext {
     margin-left: 10px;
   }
+
+  &__bar-remind {
+    background: var(--btn-primary-bg, #b45309);
+    color: var(--btn-primary-fg, #ffffff);
+
+    &--on {
+      opacity: 0.7;
+    }
+  }
 }

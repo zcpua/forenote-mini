@@ -24,7 +24,8 @@ export default defineConfig(async (merge) => {
     plugins: [],
     defineConstants: {
       __APP_WX_CLOUD_ENV__: JSON.stringify(process.env.TARO_APP_WX_CLOUD_ENV || ''),
-      __APP_WX_CLOUD_SERVICE__: JSON.stringify(process.env.TARO_APP_WX_CLOUD_SERVICE || 'forenote')
+      __APP_WX_CLOUD_SERVICE__: JSON.stringify(process.env.TARO_APP_WX_CLOUD_SERVICE || 'forenote'),
+      __APP_ONSALE_TMPL_ID__: JSON.stringify(process.env.TARO_APP_ONSALE_TMPL_ID || '')
     },
     copy: {
       patterns: [

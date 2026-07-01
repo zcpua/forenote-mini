@@ -3,8 +3,15 @@ import { View, Image, Text, ScrollView, Swiper, SwiperItem, Button } from '@taro
 import Taro, { useRouter } from '@tarojs/taro'
 import { fetchPerformanceById } from '../../store/performances'
 import { Performance } from '../../types'
-import { isFavorite, toggleFavorite } from '../../store'
+import {
+  isFavorite,
+  isNotificationCreditActive,
+  setNotificationCredit,
+  subscribe,
+  toggleFavorite,
+} from '../../store'
 import { getOpenid } from '../../services/auth'
+import { ONSALE_TMPL_ID } from '../../services/api'
 import Icon from '../../components/Icon'
 import ThemeView from '../../components/ThemeView'
 import { usePageShare } from '../../hooks/usePageShare'
@@ -17,6 +24,7 @@ export default function Detail() {
   const id = router.params.id || ''
   const [perf, setPerf] = useState<Performance | undefined>(undefined)
   const [fav, setFav] = useState(false)
+  const [remindActive, setRemindActive] = useState(false)
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [tabIndex, setTabIndex] = useState(0)
   const audioRef = useRef<Taro.InnerAudioContext | null>(null)
@@ -32,6 +40,18 @@ export default function Detail() {
       Taro.setNavigationBarTitle({ title: p ? p.title : '演出详情' })
     })
     setFav(isFavorite(id))
+    setRemindActive(isNotificationCreditActive(id))
+  }, [id])
+
+  useEffect(() => {
+    // Both favorite and notification-credit caches emit through the same
+    // store subscribe(). Re-read whatever we display when either changes.
+    const sync = () => {
+      setFav(isFavorite(id))
+      setRemindActive(isNotificationCreditActive(id))
+    }
+    const unsub = subscribe(sync)
+    return () => { unsub() }
   }, [id])
 
   useEffect(() => {
@@ -159,6 +179,42 @@ export default function Detail() {
     })
   }
 
+  // Show the "提醒我开票" button only for未开票 演出. Explicit "unknown" is
+  // included because several scrapers default to "unknown" when the upstream
+  // shape is ambiguous — users can still opt in and receive a push when the
+  // state later transitions to on_sale.
+  const canRemind = perf ? perf.saleState === 'pre_sale' || perf.saleState === 'unknown' : false
+
+  const onRemind = async () => {
+    if (!perf) return
+    if (!getOpenid()) {
+      Taro.navigateTo({ url: '/pages/login/index' })
+      return
+    }
+    if (!ONSALE_TMPL_ID) {
+      Taro.showToast({ title: '提醒功能未配置', icon: 'none' })
+      return
+    }
+    if (remindActive) {
+      Taro.showToast({ title: '已设置开票提醒', icon: 'none' })
+      return
+    }
+    try {
+      // Taro's newer typedef requires entityIds too, but the WeChat runtime
+      // only reads tmplIds — cast around the mismatch.
+      const res = await Taro.requestSubscribeMessage({ tmplIds: [ONSALE_TMPL_ID] } as unknown as Parameters<typeof Taro.requestSubscribeMessage>[0])
+      if ((res as Record<string, string>)[ONSALE_TMPL_ID] !== 'accept') {
+        Taro.showToast({ title: '未开启提醒', icon: 'none' })
+        return
+      }
+      setNotificationCredit(perf.id, true)
+      Taro.showToast({ title: '已设置开票提醒', icon: 'success' })
+    } catch (err) {
+      console.warn('[remind] requestSubscribeMessage', err)
+      Taro.showToast({ title: '授权失败，请重试', icon: 'none' })
+    }
+  }
+
   return (
     <ThemeView className='detail'>
       <View className='detail__head'>
@@ -255,10 +311,20 @@ export default function Detail() {
           <Icon name='calendar-add' size={36} color='#ffffff' />
           <Text className='detail__bar-btntext'>加入日程</Text>
         </View>
-        <View className='detail__bar-btn' onClick={buyTicket}>
-          <Icon name='ticket' size={36} color='#ffffff' />
-          <Text className='detail__bar-btntext'>去购票</Text>
-        </View>
+        {canRemind ? (
+          <View
+            className={`detail__bar-btn detail__bar-remind ${remindActive ? 'detail__bar-remind--on' : ''}`}
+            onClick={onRemind}
+          >
+            <Icon name='calendar-add' size={36} color='#ffffff' />
+            <Text className='detail__bar-btntext'>{remindActive ? '已提醒' : '提醒开票'}</Text>
+          </View>
+        ) : (
+          <View className='detail__bar-btn' onClick={buyTicket}>
+            <Icon name='ticket' size={36} color='#ffffff' />
+            <Text className='detail__bar-btntext'>去购票</Text>
+          </View>
+        )}
       </View>
 
     </ThemeView>

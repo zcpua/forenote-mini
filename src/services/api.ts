@@ -68,6 +68,14 @@ export const api = {
 
 const BASE = '/api/v2'
 
+export type SaleState =
+  | 'unknown'
+  | 'pre_sale'
+  | 'on_sale'
+  | 'sold_out'
+  | 'cancelled'
+  | 'ended'
+
 // ---- Performance ----
 export type ApiPerformance = {
   id: string
@@ -83,6 +91,7 @@ export type ApiPerformance = {
   imageUrl?: string | null
   priceLabel?: string | null
   saleStatus?: string | null
+  saleState?: SaleState | null
   address?: string | null
   intro?: string | null
   isClassical?: boolean | null
@@ -115,3 +124,24 @@ export const apiAddFavorite = (id: string) =>
   api.post<{ ok: true }>(`${BASE}/me/favorites/${encodeURIComponent(id)}`)
 export const apiRemoveFavorite = (id: string) =>
   api.del<{ ok: true }>(`${BASE}/me/favorites/${encodeURIComponent(id)}`)
+
+// ---- Notification credits (开票提醒) ----
+// The Hono / Gin backends both expose these under the same paths. A single
+// tap of "提醒我开票" POSTs one credit; the notifier consumes it when it
+// pushes. A re-tap upserts the row back to active.
+export const apiNotificationCreditIds = () =>
+  api.get<{ ids: string[] }>(`${BASE}/me/notification-credits/ids`)
+
+export const apiAddNotificationCredit = (id: string, kind: string = 'on_sale') =>
+  api.post<{ ok: true }>(`${BASE}/me/notification-credits/${encodeURIComponent(id)}`, { kind })
+
+export const apiRemoveNotificationCredit = (id: string, kind: string = 'on_sale') =>
+  api.del<{ ok: true }>(
+    `${BASE}/me/notification-credits/${encodeURIComponent(id)}?kind=${encodeURIComponent(kind)}`,
+  )
+
+// Template ID used by Taro.requestSubscribeMessage. Injected at build time
+// via TARO_APP_ONSALE_TMPL_ID; empty string means the feature is not yet
+// configured for this build.
+export const ONSALE_TMPL_ID: string =
+  typeof __APP_ONSALE_TMPL_ID__ === 'string' ? __APP_ONSALE_TMPL_ID__ : ''

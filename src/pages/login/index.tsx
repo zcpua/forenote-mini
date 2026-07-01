@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { login } from '../../services/auth'
-import { hydrateFavorites } from '../../store'
+import { hydrateFavorites, hydrateNotificationCredits } from '../../store'
 import ThemeView from '../../components/ThemeView'
 import { usePageShare } from '../../hooks/usePageShare'
 import './index.scss'
@@ -20,6 +20,7 @@ export default function Login() {
       return
     }
     await hydrateFavorites()
+    await hydrateNotificationCredits()
     setBusy(false)
     Taro.showToast({ title: '登录成功', icon: 'success' })
     setTimeout(() => Taro.navigateBack(), 600)

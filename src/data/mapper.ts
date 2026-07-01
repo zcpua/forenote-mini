@@ -54,7 +54,8 @@ export const mapPerformance = (p: ApiPerformance): Performance => {
     intro: p.intro || '',
     ticketUrl: p.ticketUrl || p.sourceUrl,
     performers: toPerformers(p.artists || []),
-    tracks: toTracks(p.program || [])
+    tracks: toTracks(p.program || []),
+    saleState: p.saleState || 'unknown'
   }
 }
 

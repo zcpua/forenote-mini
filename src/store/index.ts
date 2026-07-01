@@ -1,6 +1,13 @@
 import Taro from '@tarojs/taro'
 import { UserInfo } from '../types'
-import { apiFavoriteIds, apiAddFavorite, apiRemoveFavorite } from '../services/api'
+import {
+  apiAddFavorite,
+  apiAddNotificationCredit,
+  apiFavoriteIds,
+  apiNotificationCreditIds,
+  apiRemoveFavorite,
+  apiRemoveNotificationCredit,
+} from '../services/api'
 
 const FOLLOW_KEY = 'follows'
 const USER_KEY = 'userInfo'
@@ -98,6 +105,47 @@ export function toggleFollow(id: string): boolean {
   return added
 }
 
+// ---- Notification credits (开票提醒) ----
+// Same shape as favorites: cache the id set, hydrate on login, optimistic
+// updates. The credit is "active" while consumed_at and failed_at are NULL
+// server-side — once the notifier pushes, the server marks it consumed and
+// the next hydrate drops it from the cache (button label resets).
+let creditCache = new Set<string>()
+
+export function isNotificationCreditActive(id: string): boolean {
+  return creditCache.has(id)
+}
+
+export async function hydrateNotificationCredits(): Promise<void> {
+  try {
+    const { ids } = await apiNotificationCreditIds()
+    creditCache = new Set(ids)
+    emit()
+  } catch {
+    // 未登录 / 不在微信内：保持空缓存。
+  }
+}
+
+/**
+ * 乐观地把一条演出标记为“已开启开票提醒”。失败回滚并 toast。返回切换后的状态。
+ * 只在 Taro.requestSubscribeMessage 返回 accept 之后调用；这里不再触发订阅授权。
+ */
+export function setNotificationCredit(id: string, active: boolean): boolean {
+  const prev = creditCache.has(id)
+  if (active) creditCache.add(id)
+  else creditCache.delete(id)
+  emit()
+
+  const req = active ? apiAddNotificationCredit(id) : apiRemoveNotificationCredit(id)
+  req.catch(() => {
+    if (active) creditCache.delete(id)
+    else if (prev) creditCache.add(id)
+    emit()
+    Taro.showToast({ title: '操作失败，请稍后再试', icon: 'none' })
+  })
+  return active
+}
+
 // ---- User（本地缓存，由 services/auth 同步后端）----
 export function getUser(): UserInfo | null {
   return Taro.getStorageSync(USER_KEY) || null
@@ -111,5 +159,6 @@ export function setUser(info: UserInfo) {
 export function logout() {
   Taro.removeStorageSync(USER_KEY)
   favCache = new Set()
+  creditCache = new Set()
   emit()
 }

@@ -32,6 +32,7 @@ export interface Performance {
   ticketUrl: string
   performers: Performer[]
   tracks: Track[]
+  saleState?: 'unknown' | 'pre_sale' | 'on_sale' | 'sold_out' | 'cancelled' | 'ended'
 }
 
 export interface UserInfo {
