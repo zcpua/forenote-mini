@@ -27,6 +27,7 @@ export interface Performance {
   time: string
   priceFrom: number
   intro: string
+  introImages: string[]
   banner?: boolean
   recommended?: boolean
   ticketUrl: string

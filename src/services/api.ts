@@ -94,6 +94,7 @@ export type ApiPerformance = {
   saleState?: SaleState | null
   address?: string | null
   intro?: string | null
+  introImages?: string[] | null
   isClassical?: boolean | null
 }
 

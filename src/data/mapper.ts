@@ -2,8 +2,6 @@ import { Performance, Performer, Track } from '../types'
 import type { ApiPerformance } from '../services/api'
 import { pad2 } from '../utils/date'
 
-const SAMPLE_AUDIO = 'https://m701.music.126.net/sample.mp3'
-
 // 把 ISO 时间戳转换为 Asia/Shanghai（+08:00）的墙上时间，拆成 date / time。
 const splitShanghai = (iso: string): { date: string; time: string } => {
   const t = Date.parse(iso)
@@ -23,22 +21,36 @@ const parsePrice = (label?: string | null): number => {
 const seededImage = (id: string) => `https://picsum.photos/seed/${encodeURIComponent(id)}/800/500`
 
 const toPerformers = (artists: string[]): Performer[] =>
-  artists.map((name, i) => ({
-    id: name || `artist-${i}`,
-    name,
-    role: '',
-    avatar: `https://picsum.photos/seed/${encodeURIComponent(name || `a${i}`)}/200/200`,
-    bio: ''
-  }))
+  artists.map((artist, i) => {
+    const [left, ...rest] = artist.split(/[：:]/)
+    const role = rest.length ? left.trim() : ''
+    const name = (rest.length ? rest.join('：') : artist).trim()
+    return {
+      id: name || `artist-${i}`,
+      name,
+      role,
+      avatar: `https://picsum.photos/seed/${encodeURIComponent(name || `a${i}`)}/200/200`,
+      bio: ''
+    }
+  })
+
+const splitProgramTitle = (displayTitle: string): { composer: string; title: string } => {
+  const match = displayTitle.match(/^([^：:]{1,40})[：:]\s*(.+)$/)
+  if (!match) return { composer: '', title: displayTitle }
+  return { composer: match[1].trim(), title: match[2].trim() }
+}
 
 const toTracks = (program: ApiPerformance['program']): Track[] =>
-  program.map((p, i) => ({
-    id: `${i}`,
-    title: p.displayTitle,
-    composer: '',
-    duration: '',
-    audioUrl: SAMPLE_AUDIO
-  }))
+  program.map((p, i) => {
+    const parsed = splitProgramTitle(p.displayTitle)
+    return {
+      id: `${i}`,
+      title: parsed.title,
+      composer: parsed.composer,
+      duration: '',
+      audioUrl: ''
+    }
+  })
 
 export const mapPerformance = (p: ApiPerformance): Performance => {
   const { date, time } = splitShanghai(p.startsAt)
@@ -52,6 +64,7 @@ export const mapPerformance = (p: ApiPerformance): Performance => {
     time,
     priceFrom: parsePrice(p.priceLabel),
     intro: p.intro || '',
+    introImages: p.introImages || [],
     ticketUrl: p.ticketUrl || p.sourceUrl,
     performers: toPerformers(p.artists || []),
     tracks: toTracks(p.program || []),

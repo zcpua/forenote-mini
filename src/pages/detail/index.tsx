@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Image, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { fetchPerformanceById } from '../../store/performances'
@@ -15,9 +15,7 @@ export default function Detail() {
   const id = router.params.id || ''
   const [perf, setPerf] = useState<Performance | undefined>(undefined)
   const [fav, setFav] = useState(false)
-  const [playingId, setPlayingId] = useState<string | null>(null)
   const [tabIndex, setTabIndex] = useState(0)
-  const audioRef = useRef<Taro.InnerAudioContext | null>(null)
   const tabs = ['演出介绍', '演奏者', '曲目']
   usePageShare({
     title: perf ? `${perf.title} | FORENOTE有谱` : 'FORENOTE有谱 | 演出详情',
@@ -40,15 +38,6 @@ export default function Detail() {
     return () => { unsub() }
   }, [id])
 
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.stop()
-        audioRef.current.destroy()
-      }
-    }
-  }, [])
-
   if (!perf) {
     return (
       <ThemeView className='detail'>
@@ -65,28 +54,6 @@ export default function Detail() {
     const added = toggleFavorite(perf.id)
     setFav(added)
     Taro.showToast({ title: added ? '已收藏' : '已取消收藏', icon: 'none' })
-  }
-
-  const playTrack = (trackId: string, url: string) => {
-    if (audioRef.current) {
-      audioRef.current.stop()
-      audioRef.current.destroy()
-      audioRef.current = null
-    }
-    if (playingId === trackId) {
-      setPlayingId(null)
-      return
-    }
-    const ctx = Taro.createInnerAudioContext()
-    ctx.src = url
-    ctx.autoplay = true
-    ctx.onError(() => {
-      Taro.showToast({ title: '试听音频不可用（示例）', icon: 'none' })
-      setPlayingId(null)
-    })
-    ctx.onEnded(() => setPlayingId(null))
-    audioRef.current = ctx
-    setPlayingId(trackId)
   }
 
   const buyTicket = () => {
@@ -141,6 +108,13 @@ export default function Detail() {
           <ScrollView scrollY className='detail__pane-scroll'>
             <View className='detail__section'>
               <Image className='detail__cover' src={perf.cover} mode='aspectFill' />
+              {perf.introImages.length > 0 ? (
+                <View className='detail__intro-images'>
+                  {perf.introImages.map((url, index) => (
+                    <Image key={`${url}-${index}`} className='detail__intro-image' src={url} mode='widthFix' />
+                  ))}
+                </View>
+              ) : null}
               <Text className='detail__intro'>{perf.intro}</Text>
             </View>
             <View className='detail__spacer' />
@@ -150,20 +124,18 @@ export default function Detail() {
         <SwiperItem className='detail__pane'>
           <ScrollView scrollY className='detail__pane-scroll'>
             <View className='detail__section'>
-              <ScrollView scrollX className='detail__performers'>
-                {perf.performers.map(per => (
-                  <View
-                    key={per.id}
-                    className='detail__performer'
-                    onClick={() => Taro.navigateTo({ url: `/pages/performer/index?id=${per.id}` })}
-                  >
-                    <Image className='detail__performer-avatar' src={per.avatar} mode='aspectFill' />
-                    <Text className='detail__performer-name'>{per.name}</Text>
-                    <Text className='detail__performer-role'>{per.role}</Text>
-                    <Text className='detail__performer-bio'>{per.bio}</Text>
-                  </View>
-                ))}
-              </ScrollView>
+              {perf.performers.length > 0 ? (
+                <View className='detail__performers'>
+                  {perf.performers.map(per => (
+                    <View key={per.id} className='detail__performer'>
+                      {per.role ? <Text className='detail__performer-role'>{per.role}</Text> : null}
+                      <Text className='detail__performer-name'>{per.name}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text className='detail__empty'>暂无演奏者信息</Text>
+              )}
             </View>
             <View className='detail__spacer' />
           </ScrollView>
@@ -172,21 +144,16 @@ export default function Detail() {
         <SwiperItem className='detail__pane'>
           <ScrollView scrollY className='detail__pane-scroll'>
             <View className='detail__section'>
-              {perf.tracks.map(t => {
-                const playing = playingId === t.id
-                return (
-                  <View key={t.id} className='detail__track' onClick={() => playTrack(t.id, t.audioUrl)}>
-                    <View className={`detail__play ${playing ? 'detail__play--on' : ''}`}>
-                      <Icon name={playing ? 'pause' : 'play'} size={28} color={playing ? '#fff' : '#1a1a2e'} />
-                    </View>
-                    <View className='detail__track-info'>
-                      <Text className='detail__track-title'>{t.title}</Text>
-                      <Text className='detail__track-composer'>{t.composer}</Text>
-                    </View>
-                    <Text className='detail__track-dur'>{t.duration}</Text>
+              {perf.tracks.length > 0 ? perf.tracks.map(t => (
+                <View key={t.id} className='detail__track'>
+                  <View className='detail__track-info'>
+                    <Text className='detail__track-title'>{t.title}</Text>
+                    {t.composer ? <Text className='detail__track-composer'>{t.composer}</Text> : null}
                   </View>
-                )
-              })}
+                </View>
+              )) : (
+                <Text className='detail__empty'>暂无曲目信息</Text>
+              )}
             </View>
             <View className='detail__spacer' />
           </ScrollView>
