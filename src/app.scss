@@ -1,4 +1,4 @@
-@import './styles/nutui-theme.scss';
+@use './styles/nutui-theme.scss' as nutuiTheme;
 
 /* ============================================================
    主题系统（暗黑模式）—— 关键设计
@@ -30,7 +30,7 @@
   --btn-secondary-bg: #1a1a2e;
   --btn-secondary-fg: #ffffff;
   --btn-accent-fg: #ffffff;
-  @include nutui-light-vars;
+  @include nutuiTheme.nutui-light-vars;
   --nutui-color-primary: #c9a96a;
   --nutui-color-primary-stop-1: #d4ba84;
   --nutui-color-primary-stop-2: #c9a96a;
@@ -58,7 +58,7 @@
   --btn-secondary-bg: #34343f;
   --btn-secondary-fg: #ececf0;
   --btn-accent-fg: #1a1a2e;
-  @include nutui-dark-vars;
+    @include nutuiTheme.nutui-dark-vars;
   --nutui-color-primary: #c9a96a;
   --nutui-color-primary-stop-1: #d4ba84;
   --nutui-color-primary-stop-2: #c9a96a;

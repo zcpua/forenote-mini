@@ -27,11 +27,13 @@ export interface Performance {
   time: string
   priceFrom: number
   intro: string
+  introImages: string[]
   banner?: boolean
   recommended?: boolean
   ticketUrl: string
   performers: Performer[]
   tracks: Track[]
+  saleState?: 'unknown' | 'pre_sale' | 'on_sale' | 'sold_out' | 'cancelled' | 'ended'
 }
 
 export interface UserInfo {

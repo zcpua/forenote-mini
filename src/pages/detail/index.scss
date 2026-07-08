@@ -116,46 +116,43 @@
     line-height: 1.8;
   }
 
+  &__intro-images {
+    margin-bottom: 28px;
+  }
+
+  &__intro-image {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
   &__performers {
-    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
   }
 
   &__performer {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    width: 320px;
     background: var(--surface-2);
-    border-radius: 18px;
-    padding: 28px;
-    margin-right: 20px;
-    white-space: normal;
-    vertical-align: top;
-  }
-
-  &__performer-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
   }
 
   &__performer-name {
     font-size: 30px;
     font-weight: 600;
     color: var(--text);
-    margin-top: 20px;
+    line-height: 1.5;
   }
 
   &__performer-role {
     font-size: 24px;
     color: var(--accent);
-    margin-top: 8px;
-  }
-
-  &__performer-bio {
-    font-size: 24px;
-    color: var(--text-light);
-    line-height: 1.6;
-    margin-top: 16px;
+    margin-bottom: 8px;
   }
 
   &__track {
@@ -165,26 +162,8 @@
     border-bottom: 1px solid var(--divider);
   }
 
-  &__play {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: var(--surface-2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    color: var(--primary);
-
-    &--on {
-      background: var(--accent);
-      color: #fff;
-    }
-  }
-
   &__track-info {
     flex: 1;
-    margin-left: 28px;
   }
 
   &__track-title {
@@ -203,6 +182,14 @@
   &__track-dur {
     font-size: 24px;
     color: var(--text-faint);
+  }
+
+  &__empty {
+    display: block;
+    padding: 48px 0;
+    font-size: 28px;
+    color: var(--text-light);
+    text-align: center;
   }
 
   &__spacer {
@@ -250,4 +237,14 @@
   &__bar-btntext {
     margin-left: 10px;
   }
+
+  &__bar-remind {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+
+    &--on {
+      opacity: 0.7;
+    }
+  }
+
 }

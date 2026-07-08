@@ -19,6 +19,7 @@ declare namespace NodeJS {
 
 declare const __APP_WX_CLOUD_ENV__: string
 declare const __APP_WX_CLOUD_SERVICE__: string
+declare const __APP_ONSALE_TMPL_ID__: string
 
 declare namespace JSX {
   interface IntrinsicElements {

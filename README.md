@@ -23,7 +23,7 @@
 - 大图封面、演出介绍
 - 演奏者横滑卡片（支持多位，含头像、角色、简介）
 - 曲目列表，点击可试听（`InnerAudioContext`）
-- 底部操作栏：收藏、加入系统日历（`Taro.addPhoneCalendar`）、跳转购票
+- 底部操作栏：收藏、加入系统日历（`Taro.addPhoneCalendar`）、去购票；对于 `saleState === "pre_sale" | "unknown"` 的演出，「去购票」替换为「提醒开票」按钮，点击后调用 `Taro.requestSubscribeMessage` 申请一次订阅授权，`accept` 后由后端记录一条待推送凭据，服务端在演出转为 `on_sale` 时发送订阅消息。构建时通过 `TARO_APP_ONSALE_TMPL_ID` 注入订阅消息模板 ID；未配置时按钮会提示「提醒功能未配置」。
 
 ### 我的
 - 登录 / 退出登录（演示登录，信息存本地）
