@@ -238,4 +238,13 @@
     margin-left: 10px;
   }
 
+  &__bar-remind {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+
+    &--on {
+      opacity: 0.7;
+    }
+  }
+
 }

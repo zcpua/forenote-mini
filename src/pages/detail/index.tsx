@@ -3,18 +3,28 @@ import { View, Image, Text, ScrollView, Swiper, SwiperItem } from '@tarojs/compo
 import Taro, { useRouter } from '@tarojs/taro'
 import { fetchPerformanceById } from '../../store/performances'
 import { Performance } from '../../types'
-import { isFavorite, subscribe, toggleFavorite } from '../../store'
+import {
+  isFavorite,
+  isNotificationCreditActive,
+  setNotificationCredit,
+  subscribe,
+  toggleFavorite,
+} from '../../store'
 import { getOpenid } from '../../services/auth'
+import { ONSALE_TMPL_ID } from '../../services/api'
 import Icon from '../../components/Icon'
 import ThemeView from '../../components/ThemeView'
 import { usePageShare } from '../../hooks/usePageShare'
 import './index.scss'
+
+const CALENDAR_SCOPE = 'scope.addPhoneCalendar'
 
 export default function Detail() {
   const router = useRouter()
   const id = router.params.id || ''
   const [perf, setPerf] = useState<Performance | undefined>(undefined)
   const [fav, setFav] = useState(false)
+  const [remindActive, setRemindActive] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const tabs = ['演出介绍', '演奏者', '曲目']
   usePageShare({
@@ -28,11 +38,13 @@ export default function Detail() {
       Taro.setNavigationBarTitle({ title: p ? p.title : '演出详情' })
     })
     setFav(isFavorite(id))
+    setRemindActive(isNotificationCreditActive(id))
   }, [id])
 
   useEffect(() => {
     const sync = () => {
       setFav(isFavorite(id))
+      setRemindActive(isNotificationCreditActive(id))
     }
     const unsub = subscribe(sync)
     return () => { unsub() }
@@ -70,11 +82,96 @@ export default function Detail() {
     })
   }
 
-  // Show the "提醒我开票" button only for未开票 演出. Explicit "unknown" is
-  // included because several scrapers default to "unknown" when the upstream
-  // shape is ambiguous — users can still opt in and receive a push when the
-  // state later transitions to on_sale.
-  const canBuyTicket = perf.saleState === 'on_sale'
+  const showCalendarAuthGuide = (retry: () => void) => {
+    Taro.showModal({
+      title: '需要日历权限',
+      content: '请在设置中开启“添加到日历”权限，开启后可把演出时间加入系统日历。',
+      confirmText: '去授权',
+      cancelText: '取消',
+      success: res => {
+        if (!res.confirm) return
+        Taro.openSetting({
+          success: settingRes => {
+            const authSetting = settingRes.authSetting as Taro.AuthSetting & Record<typeof CALENDAR_SCOPE, boolean | undefined>
+            if (authSetting[CALENDAR_SCOPE]) retry()
+          }
+        })
+      }
+    })
+  }
+
+  const addToCalendar = () => {
+    const [y, m, d] = perf.date.split('-').map(Number)
+    const [hh, mm] = perf.time.split(':').map(Number)
+    const start = new Date(y, m - 1, d, hh, mm).getTime() / 1000
+
+    const doAdd = () => Taro.addPhoneCalendar({
+      title: perf.title,
+      startTime: start,
+      endTime: String(start + 7200),
+      location: `${perf.city} ${perf.venue}`,
+      description: perf.intro,
+      alarm: true,
+      alarmOffset: 3600,
+      success: () => Taro.showToast({ title: '已添加到日历', icon: 'success' }),
+      fail: () => {
+        Taro.getSetting({
+          success: settingRes => {
+            const authSetting = settingRes.authSetting as Taro.AuthSetting & Record<typeof CALENDAR_SCOPE, boolean | undefined>
+            if (authSetting[CALENDAR_SCOPE] === false) {
+              showCalendarAuthGuide(doAdd)
+              return
+            }
+            Taro.showToast({ title: '添加失败或已取消', icon: 'none' })
+          },
+          fail: () => Taro.showToast({ title: '添加失败或已取消', icon: 'none' })
+        })
+      }
+    })
+
+    Taro.getSetting({
+      success: settingRes => {
+        const authSetting = settingRes.authSetting as Taro.AuthSetting & Record<typeof CALENDAR_SCOPE, boolean | undefined>
+        if (authSetting[CALENDAR_SCOPE] === false) {
+          showCalendarAuthGuide(doAdd)
+          return
+        }
+        doAdd()
+      },
+      fail: doAdd
+    })
+  }
+
+  // Show the “提醒开票” action for未开票 演出, while keeping “加入日程”
+  // and “去购票” visible so the existing detail-page actions do not regress.
+  const canRemind = perf.saleState === 'pre_sale' || perf.saleState === 'unknown'
+
+  const onRemind = async () => {
+    if (!getOpenid()) {
+      Taro.navigateTo({ url: '/pages/login/index' })
+      return
+    }
+    if (!ONSALE_TMPL_ID) {
+      Taro.showToast({ title: '提醒功能未配置', icon: 'none' })
+      return
+    }
+    if (remindActive) {
+      Taro.showToast({ title: '已设置开票提醒', icon: 'none' })
+      return
+    }
+    try {
+      const res = await Taro.requestSubscribeMessage({ tmplIds: [ONSALE_TMPL_ID] } as unknown as Parameters<typeof Taro.requestSubscribeMessage>[0])
+      if ((res as Record<string, string>)[ONSALE_TMPL_ID] !== 'accept') {
+        Taro.showToast({ title: '未开启提醒', icon: 'none' })
+        return
+      }
+      setNotificationCredit(perf.id, true)
+      Taro.showToast({ title: '已设置开票提醒', icon: 'success' })
+    } catch (err) {
+      console.warn('[remind] requestSubscribeMessage', err)
+      Taro.showToast({ title: '授权失败，请重试', icon: 'none' })
+    }
+  }
 
   return (
     <ThemeView className='detail'>
@@ -164,12 +261,23 @@ export default function Detail() {
         <View className='detail__bar-fav' onClick={onFav}>
           <Icon name={fav ? 'star-fill' : 'star'} size={48} color='#c9a96a' />
         </View>
-        {canBuyTicket ? (
-          <View className='detail__bar-btn' onClick={buyTicket}>
-            <Icon name='ticket' size={36} color='#ffffff' />
-            <Text className='detail__bar-btntext'>去购票</Text>
+        <View className='detail__bar-btn' onClick={addToCalendar}>
+          <Icon name='calendar-add' size={36} color='#ffffff' />
+          <Text className='detail__bar-btntext'>加入日程</Text>
+        </View>
+        {canRemind ? (
+          <View
+            className={`detail__bar-btn detail__bar-remind ${remindActive ? 'detail__bar-remind--on' : ''}`}
+            onClick={onRemind}
+          >
+            <Icon name='calendar-add' size={36} color='#ffffff' />
+            <Text className='detail__bar-btntext'>{remindActive ? '已提醒' : '提醒开票'}</Text>
           </View>
         ) : null}
+        <View className='detail__bar-btn' onClick={buyTicket}>
+          <Icon name='ticket' size={36} color='#ffffff' />
+          <Text className='detail__bar-btntext'>去购票</Text>
+        </View>
       </View>
 
     </ThemeView>
